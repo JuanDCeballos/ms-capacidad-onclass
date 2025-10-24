@@ -3,7 +3,10 @@ package co.onclass.api;
 import co.onclass.api.dto.ApiErrorResponse;
 import co.onclass.api.dto.ApiSuccessResponse;
 import co.onclass.api.dto.capacidad.CapacidadRequestDto;
+import co.onclass.api.dto.capacidad.CapacidadTecnologiaRequestDto;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.enums.ParameterIn;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.parameters.RequestBody;
@@ -16,6 +19,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.reactive.function.server.RouterFunction;
 import org.springframework.web.reactive.function.server.ServerResponse;
 
+import static co.onclass.api.constants.ApiConstants.*;
 import static org.springframework.web.reactive.function.server.RequestPredicates.POST;
 import static org.springframework.web.reactive.function.server.RouterFunctions.route;
 
@@ -25,7 +29,7 @@ public class RouterRest {
     @Bean
     @RouterOperations({
             @RouterOperation(
-                    path = "/api/v1/capacidad",
+                    path = GUARDAR_CAPACIDAD,
                     method = RequestMethod.POST,
                     beanClass = Handler.class,
                     beanMethod = "listenPOSTGuardarCapacidad",
@@ -50,9 +54,45 @@ public class RouterRest {
                                     )
                             }
                     )
+            ),
+            @RouterOperation(
+                    path = AGREGAR_TECNOLOGIAS,
+                    method = RequestMethod.POST,
+                    beanClass = Handler.class,
+                    beanMethod = "listenPOSTGuardarTecnologiasCapacidad",
+                    operation = @Operation(
+                            operationId = "guardarTecnologiasCapacidad",
+                            summary = "Guarda las tecnologías que le pertenecen a una capacidad",
+                            parameters = {
+                                    @Parameter(
+                                            in = ParameterIn.PATH,
+                                            name = ID_CAPACIDAD_PATH_VARIABLE,
+                                            description = "Id de la capacidad",
+                                            required = true
+                                    )
+                            },
+                            requestBody = @RequestBody(
+                                    required = true,
+                                    description = "Lista de las tecnologías a relacionar",
+                                    content = @Content(schema = @Schema(implementation = CapacidadTecnologiaRequestDto.class))
+                            ),
+                            responses = {
+                                    @ApiResponse(
+                                            responseCode = "200",
+                                            description = "Tecnologías relacionadas a la capacidad exitosamente",
+                                            content = @Content(schema = @Schema(implementation = ApiSuccessResponse.class))
+                                    ),
+                                    @ApiResponse(
+                                            responseCode = "400",
+                                            description = "Datos invalidos",
+                                            content = @Content(schema = @Schema(implementation = ApiErrorResponse.class))
+                                    )
+                            }
+                    )
             )
     })
     public RouterFunction<ServerResponse> routerFunction(Handler handler) {
-        return route(POST("/api/v1/capacidad"), handler::listenPOSTGuardarCapacidad);
+        return route(POST(GUARDAR_CAPACIDAD), handler::listenPOSTGuardarCapacidad)
+                .andRoute(POST(AGREGAR_TECNOLOGIAS), handler::listenPOSTGuardarTecnologiasCapacidad);
     }
 }
