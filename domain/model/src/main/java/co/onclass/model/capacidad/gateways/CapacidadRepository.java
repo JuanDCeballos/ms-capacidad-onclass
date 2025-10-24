@@ -6,4 +6,6 @@ import reactor.core.publisher.Mono;
 public interface CapacidadRepository {
 
     Mono<Capacidad> guardarCapacidad(Capacidad capacidad);
+
+    Mono<Capacidad> buscarPorId(Long idCapacidad);
 }
