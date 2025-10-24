@@ -1,6 +1,7 @@
 package co.onclass.config;
 
 import co.onclass.model.capacidad.gateways.CapacidadRepository;
+import co.onclass.model.tecnologia.gateways.TecnologiaGateway;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
@@ -10,7 +11,7 @@ import org.springframework.context.annotation.Import;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-public class UseCasesConfigTest {
+class UseCasesConfigTest {
 
     @Test
     void testUseCaseBeansExist() {
@@ -41,6 +42,11 @@ public class UseCasesConfigTest {
         @Bean
         public CapacidadRepository capacidadRepository() {
             return Mockito.mock(CapacidadRepository.class);
+        }
+
+        @Bean
+        public TecnologiaGateway tecnologiaGateway() {
+            return Mockito.mock(TecnologiaGateway.class);
         }
     }
 

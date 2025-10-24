@@ -23,4 +23,9 @@ public class CapacidadReactiveRepositoryAdapter extends ReactiveAdapterOperation
     public Mono<Capacidad> guardarCapacidad(Capacidad capacidad) {
         return save(capacidad);
     }
+
+    @Override
+    public Mono<Capacidad> buscarPorId(Long idCapacidad) {
+        return findById(idCapacidad);
+    }
 }
