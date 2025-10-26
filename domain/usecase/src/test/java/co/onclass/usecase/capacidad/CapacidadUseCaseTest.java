@@ -4,6 +4,10 @@ import co.onclass.exceptions.BusinessException;
 import co.onclass.model.capacidad.Capacidad;
 import co.onclass.model.capacidad.CapacidadDetallada;
 import co.onclass.model.capacidad.gateways.CapacidadRepository;
+import co.onclass.model.paging.PageableQuery;
+import co.onclass.model.paging.PaginaDto;
+import co.onclass.model.paging.SortDirection;
+import co.onclass.model.tecnologia.PaginatedCapacidadIdsResponse;
 import co.onclass.model.tecnologia.Tecnologia;
 import co.onclass.model.tecnologia.gateways.TecnologiaGateway;
 import org.junit.jupiter.api.BeforeEach;
@@ -12,11 +16,11 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -36,13 +40,16 @@ class CapacidadUseCaseTest {
     TecnologiaGateway tecnologiaGateway;
 
     private Capacidad capacidad;
-    private CapacidadDetallada capacidadDetallada;
-    private Tecnologia tecnologia;
+    private PageableQuery pageableQuery;
+    private PaginatedCapacidadIdsResponse paginatedCapacidadIds;
 
     private List<Tecnologia> tecnologias;
     private List<Long> tecnologiasIds = List.of(1L, 2L, 3L);
 
-    private Long idCapacidad = 1L;
+    private Map<Long, List<Tecnologia>> tecnologiasPorCapacidadMap;
+
+    private final Long idCapacidad = 1L;
+    private final Long cantidadTotal = 3L;
 
     @BeforeEach
     void initMocks() {
@@ -52,16 +59,23 @@ class CapacidadUseCaseTest {
         capacidad.setDescripcion("Capacidad para ser desarrollador Frontend");
 
         tecnologias = new ArrayList<>();
-        tecnologia = new Tecnologia();
+        Tecnologia tecnologia = new Tecnologia();
         tecnologia.setId(1L);
         tecnologia.setNombre("JavaScript");
         tecnologias.add(tecnologia);
 
-        capacidadDetallada = new CapacidadDetallada();
-        capacidadDetallada.setId(1L);
-        capacidadDetallada.setNombre("Frontend");
-        capacidadDetallada.setTecnologias(tecnologias);
+        pageableQuery = new PageableQuery();
+        pageableQuery.setPage(0);
+        pageableQuery.setSize(3);
+        pageableQuery.setSortBy("technologyCount");
+        pageableQuery.setDirection(SortDirection.ASC);
 
+        paginatedCapacidadIds = new PaginatedCapacidadIdsResponse();
+        paginatedCapacidadIds.setTotalElementos(3L);
+        paginatedCapacidadIds.setIds(List.of(1L, 2L, 3L));
+
+        tecnologiasPorCapacidadMap = new HashMap<>();
+        tecnologiasPorCapacidadMap.put(1L, tecnologias);
     }
 
     @Test
@@ -137,5 +151,97 @@ class CapacidadUseCaseTest {
 
         verify(capacidadRepository, times(0)).buscarPorId(anyLong());
         verify(tecnologiaGateway, times(0)).asignarTecnologias(anyLong(), anySet());
+    }
+
+    @Test
+    void listarCapacidadesPaginadasTechnologyCount() {
+        when(tecnologiaGateway.getCapacidadesIdsOrdenadasPorConteo(
+                anyInt(), anyInt(), any(SortDirection.class))).thenReturn(Mono.just(paginatedCapacidadIds));
+        when(capacidadRepository.buscarTodasPorIdEnOrden(anyList())).thenReturn(Flux.just(capacidad));
+        when(tecnologiaGateway.getTecnologiasPorCapacidad(anyList())).thenReturn(Mono.just(tecnologiasPorCapacidadMap));
+
+        Mono<PaginaDto<CapacidadDetallada>> respuesta = capacidadUseCase.listarCapacidadesPaginadas(pageableQuery);
+
+        StepVerifier.create(respuesta)
+                .assertNext(dto -> {
+                    assertNotNull(dto);
+                    assertEquals(0, dto.getPaginaActual());
+                    assertEquals(3L, dto.getTotalElementos());
+                })
+                .verifyComplete();
+
+        verify(tecnologiaGateway, times(1)).getCapacidadesIdsOrdenadasPorConteo(
+                anyInt(), anyInt(), any(SortDirection.class));
+        verify(capacidadRepository, times(1)).buscarTodasPorIdEnOrden(anyList());
+        verify(tecnologiaGateway, times(1)).getTecnologiasPorCapacidad(anyList());
+    }
+
+    @Test
+    void listarCapacidadesPaginadasTechnologyCountRetornaVacio() {
+        pageableQuery.setSize(0);
+        paginatedCapacidadIds.setIds(Collections.emptyList());
+
+        when(tecnologiaGateway.getCapacidadesIdsOrdenadasPorConteo(
+                anyInt(), anyInt(), any(SortDirection.class))).thenReturn(Mono.just(paginatedCapacidadIds));
+
+        Mono<PaginaDto<CapacidadDetallada>> respuesta = capacidadUseCase.listarCapacidadesPaginadas(pageableQuery);
+
+        StepVerifier.create(respuesta)
+                .assertNext(dto -> {
+                    assertNotNull(dto);
+                    assertEquals(0, dto.getPaginaActual());
+                    assertEquals(3L, dto.getTotalElementos());
+                })
+                .verifyComplete();
+
+        verify(tecnologiaGateway, times(1)).getCapacidadesIdsOrdenadasPorConteo(
+                anyInt(), anyInt(), any(SortDirection.class));
+        verify(capacidadRepository, times(0)).buscarTodasPorIdEnOrden(anyList());
+        verify(tecnologiaGateway, times(0)).getTecnologiasPorCapacidad(anyList());
+    }
+
+    @Test
+    void listarOrdenadoPorCapacidad() {
+        pageableQuery.setSortBy("nombre");
+
+        when(capacidadRepository.contarTodos()).thenReturn(Mono.just(cantidadTotal));
+        when(capacidadRepository.buscarTodasPaginadas(any(PageableQuery.class))).thenReturn(Flux.just(capacidad));
+        when(tecnologiaGateway.getTecnologiasPorCapacidad(anyList())).thenReturn(Mono.just(tecnologiasPorCapacidadMap));
+
+        Mono<PaginaDto<CapacidadDetallada>> respuesta = capacidadUseCase.listarCapacidadesPaginadas(pageableQuery);
+
+        StepVerifier.create(respuesta)
+                .assertNext(dto -> {
+                    assertNotNull(dto);
+                    assertEquals(0, dto.getPaginaActual());
+                    assertEquals(3L, dto.getTotalElementos());
+                })
+                .verifyComplete();
+
+        verify(capacidadRepository, times(1)).contarTodos();
+        verify(capacidadRepository, times(1)).buscarTodasPaginadas(any(PageableQuery.class));
+        verify(tecnologiaGateway, times(1)).getTecnologiasPorCapacidad(anyList());
+    }
+
+    @Test
+    void listarOrdenadoPorCapacidadRetornaVacio() {
+        pageableQuery.setSortBy("nombre");
+
+        when(capacidadRepository.contarTodos()).thenReturn(Mono.just(cantidadTotal));
+        when(capacidadRepository.buscarTodasPaginadas(any(PageableQuery.class))).thenReturn(Flux.empty());
+
+        Mono<PaginaDto<CapacidadDetallada>> respuesta = capacidadUseCase.listarCapacidadesPaginadas(pageableQuery);
+
+        StepVerifier.create(respuesta)
+                .assertNext(dto -> {
+                    assertNotNull(dto);
+                    assertEquals(0, dto.getPaginaActual());
+                    assertEquals(3L, dto.getTotalElementos());
+                })
+                .verifyComplete();
+
+        verify(capacidadRepository, times(1)).contarTodos();
+        verify(capacidadRepository, times(1)).buscarTodasPaginadas(any(PageableQuery.class));
+        verify(tecnologiaGateway, times(0)).getTecnologiasPorCapacidad(anyList());
     }
 }
