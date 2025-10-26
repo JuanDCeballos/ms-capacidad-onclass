@@ -6,6 +6,8 @@ import co.onclass.api.dto.capacidad.CapacidadRequestDto;
 import co.onclass.api.dto.capacidad.CapacidadTecnologiaRequestDto;
 import co.onclass.api.utils.CapacidadMapper;
 import co.onclass.api.validation.ValidationService;
+import co.onclass.model.paging.PageableQuery;
+import co.onclass.model.paging.SortDirection;
 import co.onclass.usecase.capacidad.CapacidadUseCase;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
@@ -53,5 +55,25 @@ public class Handler {
                             .contentType(MediaType.APPLICATION_JSON)
                             .bodyValue(new ApiSuccessResponse<>(responseDto));
                 });
+    }
+
+    public Mono<ServerResponse> listenGETCapacidades(ServerRequest serverRequest) {
+        int page = serverRequest.queryParam("page").map(Integer::parseInt).orElse(0);
+        int size = serverRequest.queryParam("size").map(Integer::parseInt).orElse(10);
+        String sortBy = serverRequest.queryParam("sortBy").orElse("nombre");
+        String order = serverRequest.queryParam("order").orElse("ASC");
+
+        SortDirection direction = "DESC".equalsIgnoreCase(order)
+                ? SortDirection.DESC
+                : SortDirection.ASC;
+
+        PageableQuery pageableQuery = new PageableQuery(page, size, sortBy, direction);
+
+        return capacidadUseCase.listarCapacidadesPaginadas(pageableQuery)
+                .flatMap(paginaDto ->
+                        ServerResponse.ok()
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .bodyValue(paginaDto)
+                );
     }
 }

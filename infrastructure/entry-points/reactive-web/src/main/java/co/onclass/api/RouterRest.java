@@ -4,6 +4,7 @@ import co.onclass.api.dto.ApiErrorResponse;
 import co.onclass.api.dto.ApiSuccessResponse;
 import co.onclass.api.dto.capacidad.CapacidadRequestDto;
 import co.onclass.api.dto.capacidad.CapacidadTecnologiaRequestDto;
+import co.onclass.model.paging.PaginaDto;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.enums.ParameterIn;
@@ -20,6 +21,7 @@ import org.springframework.web.reactive.function.server.RouterFunction;
 import org.springframework.web.reactive.function.server.ServerResponse;
 
 import static co.onclass.api.constants.ApiConstants.*;
+import static org.springframework.web.reactive.function.server.RequestPredicates.GET;
 import static org.springframework.web.reactive.function.server.RequestPredicates.POST;
 import static org.springframework.web.reactive.function.server.RouterFunctions.route;
 
@@ -89,10 +91,55 @@ public class RouterRest {
                                     )
                             }
                     )
+            ),
+            @RouterOperation(
+                    path = OBTENER_CAPACIDADES,
+                    method = RequestMethod.GET,
+                    beanClass = Handler.class,
+                    beanMethod = "listenGETCapacidades",
+                    operation = @Operation(
+                            operationId = "listarCapacidadesPaginadas",
+                            summary = "lista las capacidades paginadas y filtradas",
+                            parameters = {
+                                    @Parameter(
+                                            in = ParameterIn.QUERY,
+                                            name = "page",
+                                            description = "Página de la petición"
+                                    ),
+                                    @Parameter(
+                                            in = ParameterIn.QUERY,
+                                            name = "size",
+                                            description = "Tamaño de la petición por página"
+                                    ),
+                                    @Parameter(
+                                            in = ParameterIn.QUERY,
+                                            name = "sortBy",
+                                            description = "Campo por el cuál se ordenará la petición"
+                                    ),
+                                    @Parameter(
+                                            in = ParameterIn.QUERY,
+                                            name = "order",
+                                            description = "Orden de los elementos de la petición"
+                                    )
+                            },
+                            responses = {
+                                    @ApiResponse(
+                                            responseCode = "200",
+                                            description = "Tecnologías relacionadas a la capacidad exitosamente",
+                                            content = @Content(schema = @Schema(implementation = PaginaDto.class))
+                                    ),
+                                    @ApiResponse(
+                                            responseCode = "400",
+                                            description = "Datos invalidos",
+                                            content = @Content(schema = @Schema(implementation = ApiErrorResponse.class))
+                                    )
+                            }
+                    )
             )
     })
     public RouterFunction<ServerResponse> routerFunction(Handler handler) {
         return route(POST(GUARDAR_CAPACIDAD), handler::listenPOSTGuardarCapacidad)
-                .andRoute(POST(AGREGAR_TECNOLOGIAS), handler::listenPOSTGuardarTecnologiasCapacidad);
+                .andRoute(POST(AGREGAR_TECNOLOGIAS), handler::listenPOSTGuardarTecnologiasCapacidad)
+                .andRoute(GET(OBTENER_CAPACIDADES), handler::listenGETCapacidades);
     }
 }
