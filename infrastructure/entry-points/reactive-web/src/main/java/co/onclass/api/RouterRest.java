@@ -140,6 +140,7 @@ public class RouterRest {
     public RouterFunction<ServerResponse> routerFunction(Handler handler) {
         return route(POST(GUARDAR_CAPACIDAD), handler::listenPOSTGuardarCapacidad)
                 .andRoute(POST(AGREGAR_TECNOLOGIAS), handler::listenPOSTGuardarTecnologiasCapacidad)
-                .andRoute(GET(OBTENER_CAPACIDADES), handler::listenGETCapacidades);
+                .andRoute(GET(OBTENER_CAPACIDADES), handler::listenGETCapacidades)
+                .andRoute(POST(ASIGNAR_CAPACIDADES), handler::listenPOSTAsignarCapacidadesBootcamp);
     }
 }

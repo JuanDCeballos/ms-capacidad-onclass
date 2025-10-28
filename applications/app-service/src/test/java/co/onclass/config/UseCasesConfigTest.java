@@ -1,6 +1,7 @@
 package co.onclass.config;
 
 import co.onclass.model.capacidad.gateways.CapacidadRepository;
+import co.onclass.model.capacidadbootcamp.gateways.CapacidadBootcampRepository;
 import co.onclass.model.tecnologia.gateways.TecnologiaGateway;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -47,6 +48,11 @@ class UseCasesConfigTest {
         @Bean
         public TecnologiaGateway tecnologiaGateway() {
             return Mockito.mock(TecnologiaGateway.class);
+        }
+
+        @Bean
+        public CapacidadBootcampRepository capacidadBootcampRepository() {
+            return Mockito.mock(CapacidadBootcampRepository.class);
         }
     }
 

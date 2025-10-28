@@ -6,9 +6,13 @@ import org.springframework.data.repository.query.ReactiveQueryByExampleExecutor;
 import org.springframework.data.repository.reactive.ReactiveCrudRepository;
 import reactor.core.publisher.Mono;
 
+import java.util.List;
+
 public interface CapacidadReactiveRepository extends ReactiveCrudRepository<CapacidadEntity, Long>,
         ReactiveQueryByExampleExecutor<CapacidadEntity> {
 
     @Query("SELECT COUNT(*) FROM capacidades")
     Mono<Long> countAll();
+
+    Mono<Long> countByIdIn(List<Long> ids);
 }

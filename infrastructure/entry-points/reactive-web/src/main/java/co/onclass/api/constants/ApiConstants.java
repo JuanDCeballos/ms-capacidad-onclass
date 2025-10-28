@@ -15,4 +15,5 @@ public final class ApiConstants {
     public static final String CAPACIDAD_BY_ID = CAPACIDAD_BASE + "/{" + ID_CAPACIDAD_PATH_VARIABLE + "}";
     public static final String AGREGAR_TECNOLOGIAS = CAPACIDAD_BY_ID + "/tecnologias";
     public static final String OBTENER_CAPACIDADES = CAPACIDAD_BASE;
+    public static final String ASIGNAR_CAPACIDADES = CAPACIDAD_BASE + "/asignar-capacidades";
 }
