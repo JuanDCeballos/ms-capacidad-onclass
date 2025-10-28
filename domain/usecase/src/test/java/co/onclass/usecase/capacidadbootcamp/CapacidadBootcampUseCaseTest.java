@@ -43,18 +43,16 @@ class CapacidadBootcampUseCaseTest {
     TecnologiaGateway tecnologiaGateway;
 
     private Map<Long, List<Tecnologia>> mapaTecnologias;
-    private List<Tecnologia> tecnologias;
-    private List<Long> capacidadesIds = List.of(1L, 2L, 3L);
-    private Tecnologia tecnologia;
+    private final List<Long> capacidadesIds = List.of(1L, 2L, 3L);
     private Capacidad capacidad;
     private Long conteoCapacidades = 3L;
-    private Long idBootcamp = 1L;
+    private final Long idBootcamp = 1L;
 
     @BeforeEach
     void initMocks() {
         mapaTecnologias = new HashMap<>();
-        tecnologias = new ArrayList<>();
-        tecnologia = new Tecnologia();
+        List<Tecnologia> tecnologias = new ArrayList<>();
+        Tecnologia tecnologia = new Tecnologia();
         tecnologia.setId(1L);
         tecnologia.setNombre("Java");
         tecnologias.add(tecnologia);
