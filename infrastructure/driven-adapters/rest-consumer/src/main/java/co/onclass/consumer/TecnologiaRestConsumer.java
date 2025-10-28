@@ -47,7 +47,7 @@ public class TecnologiaRestConsumer implements TecnologiaGateway {
                         res.bodyToMono(ExternalApiErrorResponse.class)
                                 .flatMap(errorBody -> {
                                     String errorMessage = String.join(", ", errorBody.getDetails());
-                                    return Mono.error(new BusinessException(ExceptionMessages.ERROR_EN_MICROSERVICIO_EXTERNO, errorMessage));
+                                    return Mono.error(new BusinessException(ExceptionMessages.ERROR_DE_NEGOCIO_EN_MICROSERVICIO_EXTERNO, errorMessage));
                                 })
                 )
                 .onStatus(HttpStatusCode::is5xxServerError, res ->
@@ -74,7 +74,7 @@ public class TecnologiaRestConsumer implements TecnologiaGateway {
                         res.bodyToMono(ExternalApiErrorResponse.class)
                                 .flatMap(errorBody -> {
                                     String errorMessage = String.join(", ", errorBody.getDetails());
-                                    return Mono.error(new BusinessException(ExceptionMessages.ERROR_EN_MICROSERVICIO_EXTERNO, errorMessage));
+                                    return Mono.error(new BusinessException(ExceptionMessages.ERROR_DE_NEGOCIO_EN_MICROSERVICIO_EXTERNO, errorMessage));
                                 })
                 )
                 .onStatus(HttpStatusCode::is5xxServerError, res ->
@@ -101,7 +101,7 @@ public class TecnologiaRestConsumer implements TecnologiaGateway {
                         res.bodyToMono(ExternalApiErrorResponse.class)
                                 .flatMap(errorBody -> {
                                     String errorMessage = String.join(", ", errorBody.getDetails());
-                                    return Mono.error(new BusinessException(ExceptionMessages.ERROR_EN_MICROSERVICIO_EXTERNO, errorMessage));
+                                    return Mono.error(new BusinessException(ExceptionMessages.ERROR_DE_NEGOCIO_EN_MICROSERVICIO_EXTERNO, errorMessage));
                                 })
                 )
                 .onStatus(HttpStatusCode::is5xxServerError, res ->
