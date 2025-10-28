@@ -87,4 +87,15 @@ public class CapacidadReactiveRepositoryAdapter extends ReactiveAdapterOperation
                             .filter(Objects::nonNull);
                 });
     }
+
+    @Override
+    public Mono<Long> contarCapacidadesExistentes(List<Long> ids) {
+        return repository.countByIdIn(ids);
+    }
+
+    @Override
+    public Flux<Capacidad> buscarTodasPorId(List<Long> ids) {
+        return repository.findAllById(ids)
+                .map(this::toEntity);
+    }
 }

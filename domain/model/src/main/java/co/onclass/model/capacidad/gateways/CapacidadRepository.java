@@ -18,4 +18,8 @@ public interface CapacidadRepository {
     Flux<Capacidad> buscarTodasPaginadas(PageableQuery query);
 
     Flux<Capacidad> buscarTodasPorIdEnOrden(List<Long> ids);
+
+    Mono<Long> contarCapacidadesExistentes(List<Long> ids);
+
+    Flux<Capacidad> buscarTodasPorId(List<Long> ids);
 }
