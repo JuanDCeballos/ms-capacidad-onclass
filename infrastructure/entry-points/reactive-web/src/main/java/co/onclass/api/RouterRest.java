@@ -141,6 +141,8 @@ public class RouterRest {
         return route(POST(GUARDAR_CAPACIDAD), handler::listenPOSTGuardarCapacidad)
                 .andRoute(POST(AGREGAR_TECNOLOGIAS), handler::listenPOSTGuardarTecnologiasCapacidad)
                 .andRoute(GET(OBTENER_CAPACIDADES), handler::listenGETCapacidades)
-                .andRoute(POST(ASIGNAR_CAPACIDADES), handler::listenPOSTAsignarCapacidadesBootcamp);
+                .andRoute(POST(ASIGNAR_CAPACIDADES), handler::listenPOSTAsignarCapacidadesBootcamp)
+                .andRoute(GET(OBTENER_CAPACIDADES_POR_BOOTCAMPS), handler::listenGETCapacidadesPorBootcamps)
+                .andRoute(GET(OBTENER_BOOTCAMPS_ORDENADOS_POR_CANTIDAD_CAPACIDADES), handler::listenGETBootcampsCantidadCapacidades);
     }
 }
