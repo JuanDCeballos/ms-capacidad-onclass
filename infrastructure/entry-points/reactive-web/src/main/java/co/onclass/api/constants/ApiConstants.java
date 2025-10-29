@@ -16,4 +16,6 @@ public final class ApiConstants {
     public static final String AGREGAR_TECNOLOGIAS = CAPACIDAD_BY_ID + "/tecnologias";
     public static final String OBTENER_CAPACIDADES = CAPACIDAD_BASE;
     public static final String ASIGNAR_CAPACIDADES = CAPACIDAD_BASE + "/asignar-capacidades";
+    public static final String OBTENER_CAPACIDADES_POR_BOOTCAMPS = CAPACIDAD_BASE + "/por-bootcamp";
+    public static final String OBTENER_BOOTCAMPS_ORDENADOS_POR_CANTIDAD_CAPACIDADES = CAPACIDAD_BASE + "/cantidad-capacidades";
 }

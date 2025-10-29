@@ -17,6 +17,10 @@ import org.springframework.web.reactive.function.server.ServerRequest;
 import org.springframework.web.reactive.function.server.ServerResponse;
 import reactor.core.publisher.Mono;
 
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+
 import static co.onclass.api.constants.ApiConstants.ID_CAPACIDAD_PATH_VARIABLE;
 import static org.springframework.web.reactive.function.server.ServerResponse.status;
 
@@ -88,6 +92,40 @@ public class Handler {
                         ServerResponse.ok()
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .bodyValue(capacidadesAsignadas)
+                );
+    }
+
+    public Mono<ServerResponse> listenGETCapacidadesPorBootcamps(ServerRequest serverRequest) {
+        List<Long> bootcampsIds = serverRequest.queryParam("ids")
+                .map(idsString -> Arrays.stream(idsString.split(","))
+                        .map(Long::parseLong)
+                        .toList())
+                .orElse(Collections.emptyList());
+
+        return capacidadBootcampUseCase.getCapacidadesTecnologiasPorBootcamps(bootcampsIds)
+                .flatMap(res ->
+                        ServerResponse.ok()
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .bodyValue(res)
+                );
+    }
+
+    public Mono<ServerResponse> listenGETBootcampsCantidadCapacidades(ServerRequest serverRequest) {
+        int page = serverRequest.queryParam("page").map(Integer::parseInt).orElse(0);
+        int size = serverRequest.queryParam("size").map(Integer::parseInt).orElse(10);
+        String order = serverRequest.queryParam("order").orElse("ASC");
+
+        SortDirection direction = "DESC".equalsIgnoreCase(order)
+                ? SortDirection.DESC
+                : SortDirection.ASC;
+
+        PageableQuery pageableQuery = new PageableQuery(page, size, "count", direction);
+
+        return capacidadBootcampUseCase.getBootcampPorCantidadCapacidades(pageableQuery)
+                .flatMap(res ->
+                        ServerResponse.ok()
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .bodyValue(res)
                 );
     }
 }
